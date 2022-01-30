@@ -1,0 +1,52 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+<br /><br /><br />
+<div id="div-alerta" ></div>
+
+<h3>Ejemplo 3: jQuery.get - Carga una seccion de la pagina</h3>
+<input type="button" value="Cargar" id="btnCargar" />
+<br />
+<div id="divGet"></div>
+
+<h3>Ejemplo2: jQuery.post enviando un objeto</h3>
+<div>
+    <div>
+        <label>Nombre: </label>
+        <input type="text" id="txtNombre" />
+    </div>
+    <div>
+        <label>Edad: </label>
+        <input type="number" id="txtEdad" />
+    </div>
+    <input type="button" value="Crear" id="btnCrearPersona" />
+</div>
+@Html.TextBox("txtDuplicador")
+<input type="button" value="Duplicar!" id="btnDuplicar" />
+<br />
+Duplicado: <span id="spanDuplicado"></span>
+@section scripts{
+    <script>
+        $(function () {
+             $("#btnCargar").click(function () {
+                $(this).prop("disabled", "disabled");
+                var url = "@Url.Action("SeccionPrueba", "Home")";
+                $.get(url).done(function (data) {
+                    $("#divGet").append(data);
+                }).fail(manejarErrorAjax);
+
+            });
+           
+            //se ejecuta si hubo error
+            function manejarErrorAjax(err) {
+                // err.responseText es el texto del eror
+                //no siempre  recomendable mostrar
+                console.log(err.responseText);
+            }
+
+
+           
+
+        });
+    </script>
+    }

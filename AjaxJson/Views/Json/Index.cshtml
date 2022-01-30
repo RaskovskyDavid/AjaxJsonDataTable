@@ -1,0 +1,191 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+<div class="row m-4">
+    <div class="col-sm-12">
+        <div class="card-header">
+            Emjemplo Crud MVC Datatable jquery
+        </div>
+        <div class="cad-body">
+            <table id="table_id" class="display">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Edad</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="formModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Editar</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+
+                    <div class="form-group">
+                        <label for="textNombre" class="col-form-label">Nombre:</label>
+                        <input type="text" class="form-control" id="textNombre">
+                    </div>
+                    <div class="form-group">
+                        <label for="numberEdad" class="col-form-label">Edad:</label>
+                        <input type="number" class="form-control" id="numberEdad">
+                    </div>
+                    <input type="hidden" id="hiddenid">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="guardar()">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        var table_id;
+        $(document).ready(function () {
+           table_id =
+            $('#table_id').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "ajax": {
+                    "url": "@Url.Content("~/Json/ObtenerPersonas")",
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                "pageLength": 10,
+                "filter": true,
+                "responsivePriority": 1,
+                "data": null,
+                "columns": [
+                { "data": "Nombre", "name": "Nombre", "autoWidth": true },
+                    { "data": "Edad", "name": "Edad", "autoWidth": true },
+                    {
+                        "data": "id", "render": function (data) {
+                            return "<button class='btn btn-primary btn-sm' onclick='abrirmodal(" + data + ")'> " +
+                                "<i class='fas fa-pen'></i></button>" +
+                                "<button class='btn btn-danger btn-sm ml-2' onclick='eliminar(" + data + ")'> " +
+                                "<i class='fa-solid fa-trash'></i></button>"
+
+                        }
+
+                        //,
+                        //"orderable": false,
+                        //"searchable": false,
+                        //"width": "150px"
+                    }
+                ],
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        text: 'Agregar Nuevo',
+                        attr: { class: 'btn btn-success btn-sm'},
+                        action: function (e, dt, node, config) {
+                            abrirmodal(0)
+                        }
+                    }
+                ]
+
+
+            });
+
+        });
+        function abrirmodal($id) {
+            if($id != 0)
+            {
+
+                $.ajax({
+                    url: "@Url.Content("~/Json/ObtenerPersona")" + "?id=" + $id,
+                    type: "GET",
+                    datatype: "json",
+                    contentType: "aplication/json charset-utf-8",
+                    success: function (data) {
+                        if (data != null) {
+                            $("#textNombre").val(data.Nombre);
+                            $("#numberEdad").val(data.Edad);
+                            $("#hiddenid").val(data.id);
+                        }
+                    }
+                }
+                );
+            }
+            else
+            {
+                $("#textNombre").val("");
+                $("#numberEdad").val("");
+                $("#hiddenid").val(0);
+            }
+
+            $("#formModal").modal("show");
+        };
+        function guardar() {
+            var $data = {
+                opersona: {
+                id: parseInt($("#hiddenid").val()),
+                Nombre: $("#textNombre").val(),
+                Edad: parseInt($("#numberEdad").val())
+                }
+            }
+            console.log($data);
+             $.ajax({
+                    url: "@Url.Action("Guardar", "Json")",
+                 type: "POST",
+                    data: JSON.stringify($data),
+                 dataType: 'json',
+                 contentType: "application/json; charset=utf-8",
+                 headers: {
+                     'Accept': 'application/json',
+                     'Content-Type': 'application/json',
+                     'opersona': $data
+                 },
+                    success: function (data) {
+                        if (data.resultado) {
+                            table_id.ajax.reload();
+                            $("#formModal").modal("hide");
+                        }
+                        else {
+                            alert("no se pudo guardar los cambios");
+                        }
+                    }
+             }
+             //    ,
+             //    error: function (error) {
+             //        console.log(error)
+             //},
+             //    beforeSend: function () {
+
+             //    }
+                );
+
+        }
+        function eliminar($id) {
+            if (confirm("¿Realmente desea eliminar?")) {
+                $.ajax({
+                    url: "@Url.Action("Eliminar", "Json")" + "?id=" + $id,
+                    type: "POST",
+                    dataType: 'json',
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        if (data.resultado) {
+                            table_id.ajax.reload();
+                        }
+                    }
+                });
+            }
+        }
+    </script>
+}
