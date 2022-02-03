@@ -1,4 +1,5 @@
 ﻿using AjaxJson.Models;
+using AjaxJson.Models.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,6 +27,31 @@ namespace AjaxJson.Controllers
             ViewBag.Message = "Your contact page.";
 
             return View();
+        }
+        public ActionResult NewPeople()
+        {
+            ViewBag.Message = "Nueva Persona";
+            TablaPersonaViewModel model = new TablaPersonaViewModel();
+            return View(model);
+        }
+        [HttpPost]
+        public ActionResult NewPeople(TablaPersonaViewModel model)
+        {
+            if(!ModelState.IsValid)
+            {
+                return View(model);
+            }
+            Persona opersona = new Persona();
+            opersona.Nombre = model.Nombre;
+            opersona.Edad = model.Edad;
+            
+            using (AjaxJsonEntities db = new AjaxJsonEntities())
+            {
+                db.Personas.Add(opersona);
+                db.SaveChanges();
+            }
+            ViewBag.Message = "Nueva Persona";
+            return View("index");
         }
         [HttpGet]
         public PartialViewResult SeccionPrueba()

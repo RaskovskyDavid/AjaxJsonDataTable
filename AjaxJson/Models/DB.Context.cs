@@ -26,5 +26,7 @@ namespace AjaxJson.Models
         }
     
         public virtual DbSet<Persona> Personas { get; set; }
+
+        public System.Data.Entity.DbSet<AjaxJson.Models.ViewModels.TablaPersonaViewModel> TablaPersonaViewModels { get; set; }
     }
 }

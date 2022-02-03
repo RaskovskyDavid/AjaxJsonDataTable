@@ -5,9 +5,15 @@ using System.Web;
 using System.Web.Mvc;
 using AjaxJson.Models;
 using System.Linq.Dynamic;
+using System.ComponentModel.DataAnnotations;
 
 namespace AjaxJson.Controllers
 {
+    public class CustomDateRangeAttribute : RangeAttribute
+    {
+        public CustomDateRangeAttribute() : base(typeof(DateTime), DateTime.Now.AddYears(-150).ToString(), DateTime.Now.AddYears(-18).ToString())
+        { }
+    }
     public class JsonController : Controller
     {
         // es un true false que indica
